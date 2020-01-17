@@ -1,16 +1,20 @@
 import gi
-gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, cairo
 
-import model
-import app
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
+
+from core.projection import Projection
+import app.model as model
+
 
 def init():
     global APP_VIEW
     APP_VIEW = AppView()
 
+
 def run():
     Gtk.main()
+
 
 class UserInterface:
     builder = Gtk.Builder()
@@ -22,12 +26,6 @@ class UserInterface:
         self.builder.connect_signals(self)
         self.window.show_all()
 
-class Projection():
-    def __init__(self):
-        model.PROJECTIONS.append(self);
-
-    def refresh(self, change):
-        raise NotImplementedError()
 
 class AppView(UserInterface):
     object_tree_view = None
@@ -35,6 +33,7 @@ class AppView(UserInterface):
     object_list = None
     drawing_area = None
     transformation = None
+    logger = None
 
     def __init__(self):
         super().__init__("AppView.glade")
@@ -44,6 +43,7 @@ class AppView(UserInterface):
         self.object_list = ObjectListComponent(self.builder)
         self.drawing_area = DrawingAreaComponent(self.builder)
         self.transformation = TransformationComponent(self.builder)
+        self.logger = LogComponent(self.builder)
 
     @property
     def selected_object_id(self):
@@ -56,6 +56,7 @@ class AppView(UserInterface):
     def quit(self, widget):
         Gtk.main_quit();
 
+
 class ObjectListComponent(Projection):
     object_list = None
 
@@ -65,8 +66,8 @@ class ObjectListComponent(Projection):
         self.object_list = builder.get_object("object_list")
 
         builder.get_object("new_object").connect("clicked", self.new_object)
+        builder.get_object("describe").connect("clicked", self.describe)
         builder.get_object("delete").connect("clicked", self.delete)
-        builder.get_object("clear").connect("clicked", self.clear)
 
     def new_object(self, widget):
         NewObjectView()
@@ -74,15 +75,19 @@ class ObjectListComponent(Projection):
     def delete(self, widget):
         model.OBJECT_MANAGER.delete(APP_VIEW.selected_object_id)
 
-    def clear(self, widget):
-        model.OBJECT_MANAGER.clear()
+    # def clear(self, widget):
+    #     model.OBJECT_MANAGER.clear()
 
-    def refresh(self, change):
-        if change == "display_file":
+    def describe(self, widget):
+        model.OBJECT_MANAGER.describe(APP_VIEW.selected_object_id)
+
+    def refresh(self, *args, **kwargs):
+        if "display_file" in args:
             self.object_list.clear()
 
             for object in model.OBJECT_MANAGER:
                 self.object_list.append([object.id, object.name, object.type])
+
 
 class NewObjectView(UserInterface):
     def __init__(self):
@@ -123,6 +128,7 @@ class NewObjectView(UserInterface):
     def coordenates(self):
         return list(tuple(row[:]) for row in self.coordenate_list)
 
+
 class DrawingAreaComponent(Projection):
     drawing_area = None
     painter = None
@@ -130,38 +136,54 @@ class DrawingAreaComponent(Projection):
     def __init__(self, builder):
         super().__init__()
 
-        self.drawing_area = builder.get_object("drawing_area")
+        self.drawing_area = builder.get_object("drawing-area")
         self.painter = self.drawing_area.get_window().cairo_create()
 
         self.drawing_area.connect("draw", self.draw)
 
         area = self.drawing_area.get_allocation()
         model.WINDOW = model.Window((0, 0), (area.width, area.height))
-        model.VIEWPORT = model.Viewport() #(50, 50), (area.width-50, area.height-50))
+        model.VIEWPORT = model.Viewport((20, 20), (area.width-40, area.height-40))
+        model.CLIPPING = model.Clipping((40, 40), (area.width-80, area.height-80))
 
     def draw(self, widget, painter):
         painter.save()
         painter.set_source_rgb(0, 0, 0)
         painter.paint()
 
+        painter.set_source_rgb(1, 1, 1)
+        painter.rectangle(*model.VIEWPORT.rectangle)
+        painter.stroke()
+
+        painter.set_source_rgb(0, 1, 1)
+        painter.rectangle(*model.CLIPPING.rectangle)
+        painter.stroke()
+
         for object in model.OBJECT_MANAGER:
             painter.set_source_rgb(*object.color)
 
-            representation = model.VIEWPORT.ajust(object.coordenates)
-            painter.move_to(
-                representation[0][0],
-                representation[0][1] + 0.5
-            )
+            representation = object.coordenates \
+                             @ model.VIEWPORT \
+                             @ model.WINDOW \
+                             @ model.CLIPPING
 
-            for coordenate in representation:
-                painter.line_to(*coordenate)
+            if len(representation) == 1:
+                painter.arc(*representation[0], 2, 0, 6)
+                painter.fill()
+            else:
+                for i, draft in enumerate(representation):
+                    if i != 0:
+                        (begin, end) = representation[i-1:i+1]
+                        if begin and end:
+                            painter.move_to(*begin)
+                            painter.line_to(*end)
 
             painter.stroke()
-
         painter.restore()
 
-    def refresh(self, change):
+    def refresh(self, *args, **kwargs):
         self.drawing_area.draw(self.painter)
+
 
 class TransformationComponent:
     target = None
@@ -188,7 +210,7 @@ class TransformationComponent:
 
     def move(self, widget, direction):
         if not self.target:
-            model.WINDOW.move(self.measure, model.WINDOW.guidance(direction))
+            model.WINDOW.move(self.measure, direction)
         else:
             reference = None if self.reference in ["Object", "World"] \
                         else model.WINDOW.angle
@@ -228,3 +250,32 @@ class TransformationComponent:
             self.reference_option_group
             if option.get_active()
         )).get_label()
+
+
+class LogComponent(Projection):
+    text_view_buffer = None
+    scrolled_window_vadjustment = None
+
+    active_sessions = ["log"]
+
+    def __init__(self, builder):
+        super().__init__()
+
+        self.text_view_buffer = builder.get_object("log_text_view").get_buffer()
+        self.scrolled_window_vadjustment = builder.get_object("log_scrolled_window").get_vadjustment()
+
+    def refresh(self, *args, **kwargs):
+        it = self.text_view_buffer.get_iter_at_offset(-1)
+
+        if "log" in args:
+            for session, text in kwargs.items():
+                if session in self.active_sessions:
+                    self.text_view_buffer.insert(it, f"{session}:\t {text}\n", -1)
+
+        self.scroll()
+
+    def scroll(self):
+        adjustment = self.scrolled_window_vadjustment
+        adjustment.set_value(
+            adjustment.get_upper() - adjustment.get_page_size()
+        )

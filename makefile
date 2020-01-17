@@ -1,5 +1,11 @@
 execute:
-	python3 src/main.py
+	python3 -m app
 
 quiet:
-	python3. src/main.py 2> /dev/null
+	python3 app 2> /dev/null
+
+check:
+	python3 -m unittest test
+
+fun:
+	python3 -m test

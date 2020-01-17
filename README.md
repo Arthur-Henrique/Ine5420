@@ -10,3 +10,5 @@ After clone [this repository](git@github.com:Arthur-Henrique/Ine5420.git), to ru
 
 ## Executing
 To execute this application just run `make execute` from project root directory
+
+

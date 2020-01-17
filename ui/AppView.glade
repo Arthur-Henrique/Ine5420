@@ -18,9 +18,12 @@
     <property name="can_focus">False</property>
     <signal name="destroy" handler="quit" swapped="no"/>
     <child>
+      <placeholder/>
+    </child>
+    <child>
       <object class="GtkFixed">
         <property name="width_request">1430</property>
-        <property name="height_request">830</property>
+        <property name="height_request">930</property>
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <child>
@@ -86,7 +89,7 @@
             <child>
               <object class="GtkButton" id="new_object">
                 <property name="label" translatable="yes">New</property>
-                <property name="name">new_object</property>
+                <property name="name">new_object_button</property>
                 <property name="width_request">93</property>
                 <property name="height_request">30</property>
                 <property name="visible">True</property>
@@ -98,9 +101,9 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="delete">
-                <property name="label" translatable="yes">Delete</property>
-                <property name="name">clear</property>
+              <object class="GtkButton" id="describe">
+                <property name="label" translatable="yes">Descrbe</property>
+                <property name="name">describe_button</property>
                 <property name="width_request">93</property>
                 <property name="height_request">30</property>
                 <property name="visible">True</property>
@@ -113,9 +116,9 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="clear">
-                <property name="label" translatable="yes">Clear</property>
-                <property name="name">new_object</property>
+              <object class="GtkButton" id="delete">
+                <property name="label" translatable="yes">Delete</property>
+                <property name="name">delete_button</property>
                 <property name="width_request">93</property>
                 <property name="height_request">30</property>
                 <property name="visible">True</property>
@@ -330,7 +333,7 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
-              <object class="GtkDrawingArea" id="drawing_area">
+              <object class="GtkDrawingArea" id="drawing-area">
                 <property name="width_request">750</property>
                 <property name="height_request">750</property>
                 <property name="visible">True</property>
@@ -341,6 +344,26 @@
           <packing>
             <property name="x">340</property>
             <property name="y">40</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkScrolledWindow" id="log_scrolled_window">
+            <property name="width_request">750</property>
+            <property name="height_request">110</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="shadow_type">in</property>
+            <child>
+              <object class="GtkTextView" id="log_text_view">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="editable">False</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="x">340</property>
+            <property name="y">800</property>
           </packing>
         </child>
       </object>
