@@ -1,11 +1,18 @@
-from app import model, view
 
+forward_differences = lambda d: [sum(d[i - 2:i]) for i in range(2, len(d)+1)]
 
-model.init()
-view.init()
+dx = [1.503, 2.223, 3.671, 4.1212]
 
-clipping = model.CLIPPING
-coordenates = [(750, 500), (800, 800)]
+x, d1x, d2x, d3x = dx
 
-result = clipping.apply(coordenates)
-print(result)
+j = 0
+delta = 0.01
+
+while j < 1.0:
+	x = x + d1x
+	d1x = d1x + d2x
+	d2x = d2x + d3x
+
+	(dx) = forward_differences(dx+[0])
+
+	j += delta

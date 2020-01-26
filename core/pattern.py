@@ -1,4 +1,4 @@
-class AllArgsConstructor:
+class AllArgsInit:
 	required = None
 
 	def __init__(self, required=False):
@@ -8,7 +8,7 @@ class AllArgsConstructor:
 		def constructor(obj, *args, **kwargs):
 			nonPresentArgs = []
 
-			@ForAttr(cls=cls)
+			@forAttr(cls=cls)
 			def setAttributes(obj, __attr__, *args, **kwargs):
 				try:
 					setattr(obj, __attr__, kwargs[__attr__])
@@ -23,7 +23,21 @@ class AllArgsConstructor:
 		setattr(cls, "__init__", constructor)
 		return cls
 
-def ForAttr(cls):
+
+class SuperInit:
+
+	def __init__(self):
+		pass
+
+	def __call__(self, cls):
+		def init(obj, *args, **kwargs):
+			super().__init__(*args, **kwargs)
+
+		setattr(cls, "__init__", init)
+		return cls
+
+
+def forAttr(cls):
 	def decorator(func):
 		def result(self=None, *args, **kwargs):
 			for __attr__ in [
@@ -36,3 +50,10 @@ def ForAttr(cls):
 		return result
 
 	return decorator
+
+def at(l):
+	class At:
+		def __rmatmul__(self, arg):
+			return l(arg)
+
+	return At()

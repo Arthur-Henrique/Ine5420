@@ -11,15 +11,15 @@ class ClippingTestCase(TestCase):
         cls.clipping = Clipping((50, 50), (750, 750))
 
     def test_1(self):
-        point = [(0, 0)]
-        result = point @ self.clipping
-        __log__("Outsider", point, "-", result, "\n")
+        Dot = [(0, 0)]
+        result = Dot @ self.clipping
+        __log__("Outsider", Dot, "-", result, "\n")
         self.assertEqual([], result)
 
-        point = [(100, 100)]
-        result = point @ self.clipping
-        # print("Insider", point, "-", result, "\n")
-        self.assertEqual(point, result)
+        Dot = [(100, 100)]
+        result = Dot @ self.clipping
+        # print("Insider", Dot, "-", result, "\n")
+        self.assertEqual(Dot, result)
 
     def test_2(self):
         line = [(55, 5), (5, 55)]
@@ -90,7 +90,7 @@ class ClippingTestCase(TestCase):
         result = draft @ self.clipping
         # print("***", draft, "-", result, "\n")
 
-from app.clipping import Rectangle
+from app.model.clipping import Rectangle
 
 class RectangleTestCase(TestCase):
 

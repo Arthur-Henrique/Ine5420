@@ -1,18 +1,39 @@
 import app.view as view
-import app.model as model
-import core
+import app.domain as domain
 
-model.init()
-view.init()
+# domain.create(
+# 	name='d',
+# 	type='Dot',
+# 	color=(1, 0, 0),
+# 	coordinates=[(500, 500)]
+# )
+#
+# domain.create(
+# 	name='t',
+# 	type=
+# 	color=(0, 1, 0),
+# 	coordinates=[(50, 60), (80, 100)]
+	# )
+#
+# domain.create(
+# 	name='w',
+# 	type='Wireframe',
+# 	color=(0, 0, 1),
+# 	coordinates=[(100, 100), (100, 400), (400, 400), (400, 100)]
+# )
 
-OBJECT_MANAGER = model.OBJECT_MANAGER
+domain.create(
+	name='bzc',
+	type='Bezier_curve',
+	color=(1, 0, 1),
+	coordinates=[(100, 100), (100, 400), (400, 400), (400, 100)]
+)
 
-# OBJECT_MANAGER.create("z", (1, 0, 1), [(-50, 200), (800, 200), (500, 500), (800, 500)])
-# OBJECT_MANAGER.create("q", (1, 1, 0), [(500, 500), (500, 800), (800, 800), (800, 500), (500, 500)])
-
-# OBJECT_MANAGER.create("l", (0, 1, 1), [(30, 50), (50, 30)])
-# OBJECT_MANAGER.create("l", (0, 1, 1), [(100, 150)])
-
-OBJECT_MANAGER.create("w", (1, 0, 1), [(-50, -50), (800, -50), (500, 500), (800, 500)])
+domain.create(
+	name='bsc',
+	type='Bspine_curve',
+	color=(1, 1, 1),
+	coordinates=[(100, 100), (100, 400), (400, 400), (400, 100)]
+)
 
 view.run()
