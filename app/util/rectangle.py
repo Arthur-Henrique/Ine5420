@@ -29,7 +29,8 @@ class Rectangle:
 	def center(self):
 		return (
 			self.x + self.width / 2,
-			self.y + self.height / 2
+			self.y + self.height / 2,
+			1
 		)
 
 	@property

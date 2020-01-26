@@ -6,23 +6,16 @@ def matriz(m):
 
 # Transformation
 
-def base():
-	return matriz((
-		[1, 0, 0],
-		[0, 1, 0],
-		[0, 0, 1]
-	))
-
-
 def normalize(coordinates):
-	return [matriz([x, y, 1]) for (x, y) in coordinates]
+	return [matriz([x, y, z, 1]) for (x, y, z) in coordinates]
 
 
 def translate(x, y):
 	return matriz((
-		[1, 0, 0],
-		[0, 1, 0],
-		[x, y, 1]
+		[1, 0, 0, 0],
+		[0, 1, 0, 0],
+		[0, 0, 1, 0],
+		[x, y, 0, 1]
 	))
 
 
@@ -31,16 +24,19 @@ def rotate(angle):
 	s = sin(angle)
 
 	return matriz((
-		[c, -s, 0],
-		[s, c, 0],
-		[0, 0, 1]
+		[c, -s, 0, 0],
+		[s, c, 0, 0],
+		[0, 0, 1, 0],
+		[0, 0, 0, 1]
 	))
 
-def scale(scale):
+def scale(s):
 	return matriz((
-		[scale, 0, 0],
-		[0, scale, 0],
-		[0, 0, 1]
+		[s, 0, 0, 0],
+		[0, s, 0, 0],
+		[0, 0, 1, 0],
+		[0, 0, 0, 1]
+
 	))
 
 

@@ -13,7 +13,7 @@ class Window(Rectangle):
 		self.scale = scale
 
 	def move(self, measure, direction):
-		[[dx, dy, _]] = normalize([direction]) @ rotate(self.angle)
+		[[dx, dy, *_]] = normalize([direction]) @ rotate(self.angle)
 
 		self.origin = (
 			self.x + measure * dx,
@@ -33,11 +33,11 @@ class Window(Rectangle):
 		__project__("window_transformation")
 
 	def __rmatmul__(self, coordinates):
-		(cx, cy) = self.center
+		(cx, cy, cz) = self.center
 
 		representation = []
 		for coordinate in normalize(coordinates):
-			[x, y, _] = coordinate \
+			[x, y, z, _] = coordinate \
 						@ translate(-cx, -cy) \
 						@ scale(self.scale) \
 						@ rotate(-self.angle) \

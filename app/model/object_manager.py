@@ -8,15 +8,15 @@ class ObjectManager:
 		object = domain.get(id)
 
 		if not reference:
-			(dx, dy) = direction
+			(dx, dy, _) = direction
 		else:
-			[[dx, dy, _]] = normalize([direction]) @ rotate(reference)
+			[[dx, dy, *_]] = normalize([direction]) @ rotate(reference)
 
 		self.transform(object, translate(measure * dx, measure * dy))
 
 	def turn(self, id, measure, direction, reference):
 		object = domain.get(id)
-		(rx, ry) = reference if reference else object.center
+		(rx, ry, _) = reference if reference else object.center
 
 		self.transform(object,
 						translate(-rx, -ry) \
@@ -26,7 +26,7 @@ class ObjectManager:
 
 	def zoom(self, id, measure, direction, reference):
 		object = domain.get(id)
-		(rx, ry) = reference if reference else object.center
+		(rx, ry, _) = reference if reference else object.center
 
 		self.transform(object,
 						translate(-rx, -ry) \
@@ -36,7 +36,7 @@ class ObjectManager:
 
 	def transform(self, object, transformation):
 		object.coordinates = [
-			(x, y) for [x, y, _] in [
+			(x, y, z) for [x, y, z, _] in [
 				coordinate @ transformation
 				for coordinate in normalize(object.coordinates)
 			]

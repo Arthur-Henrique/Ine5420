@@ -40,7 +40,7 @@ class TransformationComponent(Projection):
         else:
             reference = None if self.reference == "Object" \
                 else model.LANDSCAPE.window.center if self.reference == "Window" \
-                else (0, 0)
+                else (0, 0, 0)
             model.OBJECT_MANAGER.turn(self.target, self.measure, direction, reference)
 
     def zoom(self, widget, direction):
@@ -49,7 +49,7 @@ class TransformationComponent(Projection):
         else:
             reference = None if self.reference == "Object" \
                 else model.LANDSCAPE.window.center if self.reference == "Window" \
-                else (0, 0)
+                else (0, 0, 0)
             model.OBJECT_MANAGER.zoom(self.target, self.measure, direction, reference)
 
     @property
