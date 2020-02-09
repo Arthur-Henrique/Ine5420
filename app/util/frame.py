@@ -1,7 +1,7 @@
 from abc import abstractmethod
 
 
-class Rectangle:
+class Frame:
 	origin = None
 	area = None
 
@@ -18,6 +18,10 @@ class Rectangle:
 		return self.origin[1]
 
 	@property
+	def z(self):
+		return self.origin[2]
+
+	@property
 	def width(self):
 		return self.area[0]
 
@@ -30,12 +34,16 @@ class Rectangle:
 		return (
 			self.x + self.width / 2,
 			self.y + self.height / 2,
-			1
+			self.z
 		)
 
 	@property
 	def end(self):
-		return (self.x + self.width, self.y + self.height)
+		return (
+			self.x + self.width,
+			self.y + self.height,
+			self.z
+		)
 
 	@property
 	def left(self):
@@ -59,13 +67,26 @@ class Rectangle:
 
 	@property
 	def vertices(self):
-		return (
+		return [
 			self.origin,
-			(self.x + self.width, self.y),
+			(self.x + self.width, self.y, self.z),
 			self.end,
-			(self.x, self.y + self.height)
-		)
+			(self.x, self.y + self.height, self.z)
+		]
+
+	@property
+	def draft(self):
+		vertices = self.vertices + [self.origin]
+
+		return {
+			'Dot': [[self.center]],
+			'Trace': [vertices[i:i+2] for i in range(len(vertices) - 1)]
+		}
 
 	@abstractmethod
-	def __rmatmul__(self, coordinates):
+	def __rmatmul__(self, draft):
+		pass
+
+	@abstractmethod
+	def transform(self, coordinate):
 		pass

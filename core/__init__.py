@@ -1,3 +1,11 @@
 from core.log import __log__
 from core.projection import Projection, __project__
 
+def __require__(requirement, message, *args):
+	violation = []
+
+	for arg in args:
+		if not requirement(arg):
+			violation.append(message)
+
+	assert not violation, violation

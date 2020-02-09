@@ -90,13 +90,13 @@ class ClippingTestCase(TestCase):
         result = draft @ self.clipping
         # print("***", draft, "-", result, "\n")
 
-from app.model.clipping import Rectangle
+from app.model.clipping import Frame
 
 class RectangleTestCase(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.rectangle = Rectangle((50, 50, 750, 750))
+        cls.rectangle = Frame((50, 50), (750, 750))
 
     def test(self):
         line = [(55, 5), (5, 55)]

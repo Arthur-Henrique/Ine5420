@@ -51,9 +51,10 @@ def forAttr(cls):
 
 	return decorator
 
-def at(l):
+def at(context):
 	class At:
+		func = context
 		def __rmatmul__(self, arg):
-			return l(arg)
+			return self.func(arg)
 
 	return At()

@@ -1,5 +1,6 @@
 from app import model, domain
 from app.model import Landscape
+from app.util import WORLD_CENTER
 from core.projection import Projection
 
 
@@ -16,44 +17,33 @@ class DrawingAreaComponent(Projection):
         self.drawing_area.connect("draw", self.draw)
 
         area = self.drawing_area.get_allocation()
-        model.LANDSCAPE = Landscape((0, 0), (area.width, area.height))
+        model.LANDSCAPE = Landscape(WORLD_CENTER, (area.width, area.height), 100)
 
         self.drawing_area.draw(self.painter)
 
     def draw(self, widget, painter):
-        self.set(painter)
-
-        for object in domain.DISPLAY_FILE:
-            painter.set_source_rgb(*object.color)
-
-            self.scribe(object.draft, painter)
-
-            painter.stroke()
-
-    def set(self, painter):
         painter.set_source_rgb(0, 0, 0)
         painter.paint()
 
-        for rectangle in model.LANDSCAPE.draft():
-            painter.set_source_rgb(0.5, 0.5, 0.5)
-            painter.rectangle(*rectangle.description)
-            painter.stroke()
+        def dot(point):
+            [(x, y, z)] = point
 
-        self.scribe([model.LANDSCAPE.window.center], painter)
-
-    def scribe(self, draft, painter):
-        representation = draft @ model.LANDSCAPE
-
-        if len(representation) == 1:
-            painter.arc(*representation[0], 2, 0, 6)
+            painter.arc(x, y, 2, 0, 6)
             painter.fill()
-        else:
-            for i, draft in enumerate(representation):
-                if i != 0:
-                    (begin, end) = representation[i - 1:i + 1]
-                    if begin and end:
-                        painter.move_to(*begin)
-                        painter.line_to(*end)
+
+        def trace(line):
+            (x0, y0, z0), (x1, y1, z1) = line
+
+            painter.move_to(x0, y0)
+            painter.line_to(x1, y1)
+
+        painter.set_source_rgb(1, 1, 1)
+
+        draft = model.DESIGNER.draft @ model.LANDSCAPE
+        draft.per_dot(dot)
+        draft.per_trace(trace)
+
+        painter.stroke()
 
     def refresh(self, *args, **kwargs):
         if {signal for signal in args if signal in [

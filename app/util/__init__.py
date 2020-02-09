@@ -1,6 +1,9 @@
 from app.util.matrix import *
-from app.util.rectangle import *
+from app.util.frame import *
 import math
+
+
+WORLD_CENTER = (0, 0, 0)
 
 
 class Direction:

@@ -10,22 +10,16 @@ class NewObjectView(UserInterface):
 
         self.name_entry = self.builder.get_object("name_entry")
         self.color_button = self.builder.get_object("color_button")
-        self.x_entry = self.builder.get_object("x_entry")
-        self.y_entry = self.builder.get_object("y_entry")
+        self.type_option_group = self.builder.get_object("Point_radio").get_group()
+        self.axis_entries = [self.builder.get_object(f"{axis}_entry") for axis in ('x', 'y', 'z')]
         self.coordinate_list = self.builder.get_object("coordinate_list")
-        self.type_option_group = self.builder.get_object("Dot_radio").get_group()
 
         self.builder.get_object("insert_button").connect("clicked", self.insert)
         self.builder.get_object("create_button").connect("clicked", self.create)
 
     def insert(self, widget):
-        self.coordinate_list.append([
-            int(self.x_entry.get_text()),
-            int(self.y_entry.get_text())
-        ])
-
-        self.x_entry.set_text("")
-        self.y_entry.set_text("")
+        self.coordinate_list.append(self.axis)
+        [entry.set_text("") for entry in self.axis_entries]
 
     def create(self, widget):
         try:
@@ -50,13 +44,17 @@ class NewObjectView(UserInterface):
         return (rgba.red, rgba.green, rgba.blue)
 
     @property
-    def coordinates(self):
-        return [(row[0], row[1]) for row in self.coordinate_list]
-
-    @property
     def type(self):
         return next((
             option for option in
             self.type_option_group
             if option.get_active()
         )).get_label()
+
+    @property
+    def axis(self):
+        return [int(entry.get_text()) for entry in self.axis_entries]
+
+    @property
+    def coordinates(self):
+        return [(row[0], row[1], row[2]) for row in self.coordinate_list]

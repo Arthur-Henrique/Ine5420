@@ -6,29 +6,47 @@ def matriz(m):
 
 # Transformation
 
-def normalize(coordinates):
-	return [matriz([x, y, z, 1]) for (x, y, z) in coordinates]
+def normalize(coordinate):
+	(x, y, z) = coordinate
+	return matriz([x, y, z, 1])
 
 
-def translate(x, y):
+def translate(x, y, z):
 	return matriz((
 		[1, 0, 0, 0],
 		[0, 1, 0, 0],
 		[0, 0, 1, 0],
-		[x, y, 0, 1]
+		[x, y, z, 1]
 	))
 
 
-def rotate(angle):
+def rotate(angle, axis='z'):
 	c = cos(angle)
 	s = sin(angle)
 
-	return matriz((
-		[c, -s, 0, 0],
-		[s, c, 0, 0],
-		[0, 0, 1, 0],
-		[0, 0, 0, 1]
-	))
+	option = {
+		'x': matriz((
+			[1, 0, 0, 0],
+			[0, c, -s, 0],
+			[0, s, c, 0],
+			[0, 0, 0, 1]
+		)),
+		'y': matriz((
+			[c, 0, -s, 0],
+			[0, 1, 0, 0],
+			[s, 0, c, 0],
+			[0, 0, 0, 1]
+		)),
+		'z': matriz((
+			[c, -s, 0, 0],
+			[s, c, 0, 0],
+			[0, 0, 1, 0],
+			[0, 0, 0, 1]
+		))
+	}
+
+	return option[axis]
+
 
 def scale(s):
 	return matriz((
@@ -40,19 +58,18 @@ def scale(s):
 	))
 
 
-# Curve
-
 def geometry(coordinates):
-	result = []
+	return [
+		matriz([
+			[coordinate[i]]
+			for coordinate
+			in coordinates
+		])
+		for i in range(len(coordinates[0]))
+	]
 
-	i = 0
-	while i < len(coordinates[0]):
-		m = matriz([[coordinate[i]] for coordinate in coordinates])
-		result.append(m)
 
-		i += 1
-
-	return result
+# Curve
 
 def bspine():
 	return matriz((
@@ -73,10 +90,36 @@ def initial_differences(d):
 		[6 * d3, 0, 0, 0]
 	))
 
+
 def bezier(t):
-	return matriz([t ** 3, t ** 2, t, 1]) @ matriz((
-		[-1, 3, -3, 1],
-		[3, -6, 3, 0],
-		[-3, 3, 0, 0],
-		[1, 0, 0, 0]
+	return matriz([t ** 3, t ** 2, t, 1]) \
+			@ matriz((
+				[-1, 3, -3, 1],
+				[3, -6, 3, 0],
+				[-3, 3, 0, 0],
+				[1, 0, 0, 0]
+			))
+
+# Perspective
+
+
+def perspective(d, z):
+	return matriz((
+		[d/z, 0, 0, 0],
+		[0, d/z, 0, 0],
+		[0, 0, d/z, 0],
+		[0, 0, 0,   1]
 	))
+
+
+def direction(line, z):
+	[begin, end] = line
+
+	vector = [
+		end[i] - begin[i]
+		for i in range(3)
+	]
+	magnitude = sum(axis ** 2 for axis in vector) ** (1 / 2)
+	_z = begin[2] - z
+
+	return translate(*(_z * axis / magnitude for axis in vector))

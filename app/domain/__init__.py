@@ -1,6 +1,5 @@
 from app.domain.drawble import Drawable
-from app.domain.basic import Dot, Trace, Wireframe
-from app.domain.curve import Bezier_curve, Bspine_curve
+from app.domain.shape import Point, Line, Chain, Polygon, BezierCurve, BSpineCurve
 from core import __project__
 
 global ID_COUNTER
@@ -12,14 +11,17 @@ DISPLAY_FILE = []
 
 def create(**kwargs):
 	object = {
-		'Dot': Dot,
-		'Trace': Trace,
-		'Wireframe': Wireframe,
-		'Bezier_curve': Bezier_curve,
-		'Bspine_curve': Bspine_curve
+		'Point': Point,
+		'Line': Line,
+		'Chain': Chain,
+		'Polygon': Polygon,
+		'Bezier_curve': BezierCurve,
+		'Bspine_curve': BSpineCurve
 	}[kwargs['type']](**kwargs)
 
 	register(object)
+
+	return object
 
 
 def register(object):
@@ -38,7 +40,8 @@ def get(id):
 
 
 def delete(id):
-	[DISPLAY_FILE.pop(i) for i in range(len(DISPLAY_FILE)) if DISPLAY_FILE.get(i).id == id]
+	global DISPLAY_FILE
+	[DISPLAY_FILE.pop(i) for i in range(len(DISPLAY_FILE)) if DISPLAY_FILE[i].id == id]
 	__project__("display_file")
 
 

@@ -1,11 +1,14 @@
+from app.model.draft import Draft
 from app.model.window import Window
+from app.model.vision import Vision
+from app.model.perspective import Perspective
 from app.model.viewport import Viewport
 from app.model.clipping import Clipping
 from app.model.landscape import Landscape
-from app.model.object_manager import ObjectManager
+from app.model.designer import Designer
 
 
-global OBJECT_MANAGER
-global LANDSCAPE
+DESIGNER = Designer()
+LANDSCAPE = Landscape()
 
-OBJECT_MANAGER = ObjectManager()
+

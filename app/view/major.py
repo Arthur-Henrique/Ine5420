@@ -26,6 +26,6 @@ class MajorView(UserInterface):
     def key_pressed(self, widget, event):
         super(MajorView, self).key_pressed(widget, event)
 
-    def quit(self, widget):
+    def quit(self, widget=None):
         super(MajorView, self).quit()
         Gtk.main_quit();
