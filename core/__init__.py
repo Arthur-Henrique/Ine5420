@@ -6,6 +6,6 @@ def __require__(requirement, message, *args):
 
 	for arg in args:
 		if not requirement(arg):
-			violation.append(message)
+			violation.append(arg + ': ' + message)
 
 	assert not violation, violation

@@ -8,7 +8,7 @@ class Landscape:
 	viewport = None
 	clipping = None
 
-	def __init__(self, origin=(0, 0, 0), area=(100, 100), distance=10):
+	def __init__(self, origin=(0, 0, 0), area=(750, 750), distance=10):
 		x, y, z, width, height = (*origin, *area)
 
 		self.window = Window(origin, area)
@@ -28,3 +28,10 @@ class Landscape:
 		draft + self.clipping.draft
 
 		return draft
+
+	def center_at(self, coordinate):
+		direction = tuple(d1-d0 for d0, d1 in zip(self.window.center, coordinate))
+		self.window.move(1, direction)
+
+	def resize(self, area):
+		pass

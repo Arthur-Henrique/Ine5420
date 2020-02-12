@@ -1,8 +1,17 @@
-from numpy import array, cos, sin
+from numpy import array, cos, sin, transpose
+
 
 def matriz(m):
 	return array(m, dtype=float)
 
+
+def transposable(m_func):
+	def decorated(*args, **kwargs):
+		m = m_func(*args)
+
+		return m if not 'transpose' in kwargs.keys() else transpose(m)
+
+	return decorated
 
 # Transformation
 
@@ -60,17 +69,20 @@ def scale(s):
 
 def geometry(coordinates):
 	return [
-		matriz([
-			[coordinate[i]]
-			for coordinate
-			in coordinates
-		])
-		for i in range(len(coordinates[0]))
+		matriz((
+			[
+				[coordinate[i]]
+				for coordinate
+				in coordinates
+			]
+		))
+		for i in range(3)
 	]
 
 
 # Curve
 
+@transposable
 def bspine():
 	return matriz((
 		[-1, 3, -3, 1],
@@ -80,28 +92,45 @@ def bspine():
 	)) / 6
 
 
-def initial_differences(d):
-	d, d2, d3 = (d ** i for i in range(1, 4))
+@transposable
+def init_diff(d):
+	[d3, d2, d, _] = pow(d, 3)
 
-	return matriz((
+	m = matriz((
 		[0, 0, 0, 1],
 		[d3, d2, d, 0],
 		[6 * d3, 2 * d2, 0, 0],
 		[6 * d3, 0, 0, 0]
 	))
 
+	return m
 
-def bezier(t):
-	return matriz([t ** 3, t ** 2, t, 1]) \
-			@ matriz((
-				[-1, 3, -3, 1],
-				[3, -6, 3, 0],
-				[-3, 3, 0, 0],
-				[1, 0, 0, 0]
-			))
+
+def bezier():
+	return matriz((
+			[-1, 3, -3, 1],
+			[3, -6, 3, 0],
+			[-3, 3, 0, 0],
+			[1, 0, 0, 0]
+		))
+
+
+@transposable
+def forward_diff():
+	return matriz((
+		[1, 1, 0, 0],
+		[0, 1, 1, 0],
+		[0, 0, 1, 1],
+		[0, 0, 0, 1],
+	))
+
+
+@transposable
+def pow(b, i):
+	return matriz([b ** p for p in range(i, -1, -1)])
+
 
 # Perspective
-
 
 def perspective(d, z):
 	return matriz((

@@ -1,5 +1,5 @@
 from app.domain import Drawable
-from app.util import matrix
+from app.util import matrix, calculate_bspine, transpose
 
 
 class Point(Drawable):
@@ -45,7 +45,6 @@ class Polygon(Chain):
 
 
 class Curve(Drawable):
-	delta = 0.01
 
 	def __init__(self, **kwargs):
 		super().__init__(**kwargs)
@@ -54,15 +53,18 @@ class Curve(Drawable):
 
 # TODO: Allow more than 4 coordinates
 class BezierCurve(Curve):
+	delta = 0.01
 
 	@property
 	def draft(self):
-		gx, gy, gz = matrix.geometry(self.coordinates)
+		_g = matrix.geometry(self.coordinates)
+
+		_c = [matrix.bezier() @ g for g in _g]
 
 		t = 0
 		bezier = []
 		while t < 1:
-			x, y, z = ((matrix.bezier(t) @ g)[0] for g in (gx, gy, gz))
+			x, y, z = ((matrix.pow(t, 3) @ c)[0] for c in _c)
 			bezier.append((x, y, z))
 
 			t += self.delta
@@ -71,25 +73,112 @@ class BezierCurve(Curve):
 
 
 class BSpineCurve(Curve):
+
 	@property
 	def draft(self):
-		i = 4
-		bspine = []
-		while i <= len(self.coordinates):
-			gx, gy, gz = matrix.geometry(self.coordinates[i - 4:i])
+		bspine = calculate_bspine(self.coordinates)
+		return {'Trace': [bspine[i - 2:i] for i in range(2, len(bspine))]}
 
-			cx, cy = (matrix.bspine() @ g for g in (gx, gy))
 
-			dx = [d[0] for d in matrix.initial_differences(self.delta) @ cx]
-			dy = [d[0] for d in matrix.initial_differences(self.delta) @ cy]
+class Surface(Drawable):
+	delta = 0.1
 
-			j = 0
-			forward_differences = lambda d: [sum(d[i - 2:i]) for i in range(2, len(d)+1)]
-			while j < 1.0:
-				bspine.append((dx[0], dy[0], 0))
-				(dx, dy) = (forward_differences(d + [0]) for d in (dx, dy))
+	def __init__(self, **kwargs):
+		super().__init__(**kwargs)
+		self.require_grade('at least', 16)
 
-				j += self.delta
-			i += 1
+	@property
+	def geometry(self):
+		_g = [[c[i] for c in self.coordinates] for i in range(3)]
+		return [[g[i - 4:i] for i in range(4, 17, 4)] for g in _g]
 
-		return {'Trace': [bspine[i-2:i] for i in range(2, len(bspine))]}
+
+class BezierSurface(Surface):
+
+	@property
+	def draft(self):
+		_g = self.geometry
+
+		_c = [
+			matrix.bezier() \
+			@ g \
+			@ matrix.bezier() \
+			for g in _g
+		]
+
+		trace = []
+		s = 0
+		while s < 1:
+
+			t = 0
+			bezier = []
+			while t < 1:
+				(x, y, z) = [
+					matrix.pow(s, 3) \
+					@ c \
+					@ matrix.pow(t, 3, transpose=True) \
+					for c in _c
+				]
+				bezier.append((x, y, z))
+				t += self.delta
+
+			trace.extend([bezier[i - 2:i] for i in range(2, len(bezier))])
+
+			s += self.delta
+
+		return {'Trace': trace}
+
+
+class BSpineSurface(Surface):
+
+	@property
+	def draft(self):
+		_g = self.geometry
+
+		_c = [
+			matrix.bspine() \
+			@ g \
+			@ matrix.bspine(transpose=True) \
+			for g in _g
+		]
+
+		_d = lambda: [
+			[
+				matrix.init_diff(self.delta) \
+				@ c \
+				@ matrix.init_diff(self.delta, transpose=True)
+			]
+			[0].tolist()
+			for c in _c
+		]
+
+		return {'Trace': self.dash(_d()) + self.dash([transpose(d) for d in _d()])}
+
+	def dash(self, _d):
+		first_row = lambda _f: \
+			list(
+				tuple(
+					f[0][j]
+					for f in _f
+				)
+				for j in range(4)
+			)
+
+		s = 0
+		trace = []
+		while s < 1:
+			bspine = calculate_bspine(first_row(_d))
+			trace.extend([bspine[i - 2:i] for i in range(2, len(bspine))])
+
+			_d = [
+				matrix.forward_diff() @ d
+				for d in _d
+			]
+
+			s += self.delta
+
+		return trace
+
+
+
+

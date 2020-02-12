@@ -1,5 +1,6 @@
 from app.domain.drawble import Drawable
-from app.domain.shape import Point, Line, Chain, Polygon, BezierCurve, BSpineCurve
+from app.domain.shape import *
+from app.domain.loader import Loader
 from core import __project__
 
 global ID_COUNTER
@@ -16,7 +17,9 @@ def create(**kwargs):
 		'Chain': Chain,
 		'Polygon': Polygon,
 		'Bezier_curve': BezierCurve,
-		'Bspine_curve': BSpineCurve
+		'BSpine_curve': BSpineCurve,
+		'Bezier_surface': BezierSurface,
+		'BSpine_surface': BSpineSurface
 	}[kwargs['type']](**kwargs)
 
 	register(object)
@@ -36,7 +39,9 @@ def register(object):
 
 
 def get(id):
-	return next(object for object in DISPLAY_FILE if object.id == id)
+	for drawable in DISPLAY_FILE:
+		if drawable.id == id:
+			return drawable
 
 
 def delete(id):
@@ -47,3 +52,7 @@ def delete(id):
 
 def describe(id):
 	__project__("log", object=get(id))
+
+
+def load(*args):
+	Loader().load(*args)

@@ -1,11 +1,11 @@
 from abc import abstractmethod
+from app.util import WORLD_CENTER
 
-
-class Frame:
+class Rectangle:
 	origin = None
 	area = None
 
-	def __init__(self, origin, area):
+	def __init__(self, origin=WORLD_CENTER, area=(100, 100)):
 		self.origin = origin
 		self.area = area
 
@@ -83,10 +83,12 @@ class Frame:
 			'Trace': [vertices[i:i+2] for i in range(len(vertices) - 1)]
 		}
 
+
+class Frame(Rectangle):
 	@abstractmethod
 	def __rmatmul__(self, draft):
 		pass
 
 	@abstractmethod
-	def transform(self, coordinate):
+	def transform(self, scribble):
 		pass

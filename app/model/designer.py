@@ -32,7 +32,7 @@ class Designer:
 
 		transform(object,
 						translate(-rx, -ry, 0) \
-						@ scale(1 + measure / 100 * direction[1]) \
+						@ scale(1 + measure / 100 * direction[2]) \
 						@ translate(rx, ry, 0)
 		)
 

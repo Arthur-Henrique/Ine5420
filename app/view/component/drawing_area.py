@@ -5,25 +5,24 @@ from core.projection import Projection
 
 
 class DrawingAreaComponent(Projection):
-    drawing_area = None
     painter = None
 
     def __init__(self, builder):
         super().__init__()
 
-        self.drawing_area = builder.get_object("drawing-area")
-        self.painter = self.drawing_area.get_window().cairo_create()
+        drawing_area = builder.get_object("drawing-area")
+        self.painter = drawing_area.get_window().cairo_create()
 
-        self.drawing_area.connect("draw", self.draw)
+        drawing_area.connect("draw", self.draw)
 
-        area = self.drawing_area.get_allocation()
-        model.LANDSCAPE = Landscape(WORLD_CENTER, (area.width, area.height), 100)
+        model.LANDSCAPE.resize(drawing_area.get_allocation())
 
-        self.drawing_area.draw(self.painter)
+        self.draw(None, self.painter)
 
     def draw(self, widget, painter):
         painter.set_source_rgb(0, 0, 0)
         painter.paint()
+        painter.set_source_rgb(1, 1, 1)
 
         def dot(point):
             [(x, y, z)] = point
@@ -37,8 +36,6 @@ class DrawingAreaComponent(Projection):
             painter.move_to(x0, y0)
             painter.line_to(x1, y1)
 
-        painter.set_source_rgb(1, 1, 1)
-
         draft = model.DESIGNER.draft @ model.LANDSCAPE
         draft.per_dot(dot)
         draft.per_trace(trace)
@@ -51,4 +48,4 @@ class DrawingAreaComponent(Projection):
             "object_transformation",
             "window_transformation"
         ]}:
-            self.drawing_area.draw(self.painter)
+            self.draw(None, self.painter)

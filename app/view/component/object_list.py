@@ -24,7 +24,8 @@ class ObjectListComponent(Projection):
         NewObjectView()
 
     def describe(self, widget):
-        domain.describe(self.selected_object_id)
+        if self.selected_object_id:
+            domain.describe(self.selected_object_id)
 
     def delete(self, widget):
         domain.delete(self.selected_object_id)

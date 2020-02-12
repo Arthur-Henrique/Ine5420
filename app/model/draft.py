@@ -12,8 +12,8 @@ class Draft:
 
 	def __add__(self, sketch):
 		for key in sketch.keys():
-			for scratch in sketch[key]:
-				self.sketch[key].append(scratch)
+			for scribble in sketch[key]:
+				self.sketch[key].append(scribble)
 		return self
 
 	def __str__(self):
@@ -24,10 +24,10 @@ class Draft:
 
 	def per_coordinate(self, transformation):
 		for key in self.keys():
-			for i, scratch in enumerate(self[key]):
-				transformed = [transformation(coordinate) for coordinate in scratch]
+			for i, scribble in enumerate(self[key]):
+				transformed = [transformation(coordinate) for coordinate in scribble]
 
-				if transformed != scratch:
+				if transformed != scribble:
 					del self[key][i]
 
 					if transformed:

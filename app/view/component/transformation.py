@@ -24,11 +24,12 @@ class TransformationComponent(Projection):
         builder.get_object("move_down").connect("clicked", self.move, Direction.DOWN)
         builder.get_object("move_right").connect("clicked", self.move, Direction.RIGHT)
 
+        builder.get_object("zoom_in").connect("clicked", self.zoom, Direction.FORWARD)
+        builder.get_object("zoom_out").connect("clicked", self.zoom, Direction.BACKWARD)
+
         builder.get_object("turn_left").connect("clicked", self.turn, Direction.LEFT)
         builder.get_object("turn_right").connect("clicked", self.turn, Direction.RIGHT)
 
-        builder.get_object("zoom_in").connect("clicked", self.zoom, Direction.DOWN)
-        builder.get_object("zoom_out").connect("clicked", self.zoom, Direction.UP)
 
     def move(self, widget, direction):
         if not self.target:
@@ -49,7 +50,7 @@ class TransformationComponent(Projection):
 
     def zoom(self, widget, direction):
         if not self.target:
-            model.LANDSCAPE.window.zoom(self.measure, direction)
+            model.LANDSCAPE.window.move(self.measure, direction)
         else:
             reference = None if self.reference == "Object" \
                 else model.LANDSCAPE.window.center if self.reference == "Window" \

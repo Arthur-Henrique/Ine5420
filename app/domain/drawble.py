@@ -22,11 +22,16 @@ class Object:
 
 
 class Drawable(Object):
-	color = (1, 1, 1)
+	color = None
+	coordinates = []
 
 	def __init__(self, **kwargs):
 		super().__init__(**kwargs)
+		assert kwargs['color'], 'Color is required'
 		self.require_dimension()
+
+		if not self.color:
+			self.color = (0, 0, 0)
 
 	@property
 	def origin(self):
@@ -35,9 +40,8 @@ class Drawable(Object):
 	@property
 	def center(self):
 		return (
-			sum(x for x, _, _ in self.coordinates) / self.grade,
-			sum(y for _, y, _ in self.coordinates) / self.grade,
-			sum(z for _, _, z in self.coordinates) / self.grade
+			sum(coordinate[i] for coordinate in self.coordinates)
+			for i in range(self.dimension)
 		)
 
 	@property

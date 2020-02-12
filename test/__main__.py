@@ -1,1 +1,0 @@
-print(sum(axis ** 2 for axis in []))
