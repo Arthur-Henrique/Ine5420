@@ -1,12 +1,9 @@
 from app import domain
 from core import Projection, __project__
-from app.view.new_object import NewObjectView
+from app.view.new_geometric_form import NewGeometricFormView
 
 
 class ObjectListComponent(Projection):
-    object_list = None
-    object_selection = None
-
     def __init__(self, builder):
         super().__init__()
 
@@ -21,7 +18,7 @@ class ObjectListComponent(Projection):
         self.refresh('display_file')
 
     def new_object(self, widget):
-        NewObjectView()
+        NewGeometricFormView()
 
     def describe(self, widget):
         if self.selected_object_id:

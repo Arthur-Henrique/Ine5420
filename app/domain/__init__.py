@@ -1,41 +1,44 @@
-from app.domain.drawble import Drawable
-from app.domain.shape import *
+from app.domain.drawable import Drawable, Geometric
+from app.domain.form import *
 from app.domain.loader import Loader
-from core import __project__
+from core import __project__, __log__
 
 global ID_COUNTER
 global DISPLAY_FILE
+global LOADER
 
 ID_COUNTER = 0
 DISPLAY_FILE = []
 
 
-def create(**kwargs):
-	object = {
+def create(type, **kwargs):
+	shape = {
 		'Point': Point,
 		'Line': Line,
 		'Chain': Chain,
 		'Polygon': Polygon,
+		'Face': Face,
 		'Bezier_curve': BezierCurve,
 		'BSpine_curve': BSpineCurve,
 		'Bezier_surface': BezierSurface,
 		'BSpine_surface': BSpineSurface
-	}[kwargs['type']](**kwargs)
+	}[type](**kwargs)
 
-	register(object)
+	register(shape)
 
-	return object
+	return shape
 
 
-def register(object):
+def register(shape):
 	global ID_COUNTER
 	ID_COUNTER += 1
-	object.id = ID_COUNTER
+	shape.id = ID_COUNTER
 
 	global DISPLAY_FILE
-	DISPLAY_FILE.append(object)
+	DISPLAY_FILE.append(shape)
 
-	__project__("display_file", "log", new_object=object)
+	__log__(new_object=shape)
+	__project__("display_file")
 
 
 def get(id):
@@ -46,13 +49,23 @@ def get(id):
 
 def delete(id):
 	global DISPLAY_FILE
-	[DISPLAY_FILE.pop(i) for i in range(len(DISPLAY_FILE)) if DISPLAY_FILE[i].id == id]
+
+	i = 0
+	while i < len(DISPLAY_FILE):
+		if DISPLAY_FILE[i].id == id:
+			DISPLAY_FILE.pop(i)
+			break
+		i += 1
+
+	__log__(object_deleted=id)
 	__project__("display_file")
 
 
 def describe(id):
-	__project__("log", object=get(id))
+	__log__(object=get(id))
 
 
-def load(*args):
-	Loader().load(*args)
+def load(path):
+	Loader().load(path)
+	__log__(file_loaded=path)
+	__project__("display_file")

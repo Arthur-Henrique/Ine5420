@@ -1,8 +1,23 @@
-from app.domain import Drawable
+from app.domain import Geometric
 from app.util import matrix, calculate_bspine, transpose
 
 
-class Point(Drawable):
+class Form(Geometric):
+
+	def __init__(self, **kwargs):
+		super().__init__(**kwargs)
+		assert kwargs['name'], 'Name is required'
+		self.__dict__.update(kwargs)
+
+	@property
+	def type(self):
+		return self.__class__.__name__
+
+	def __str__(self):
+		return f"\n\t{self.id}:\t{self.type}, {self.name}\n" + super().__str__()
+
+
+class Point(Form):
 
 	def __init__(self, **kwargs):
 		super().__init__(**kwargs)
@@ -10,10 +25,10 @@ class Point(Drawable):
 
 	@property
 	def draft(self):
-		return {'Dot': [self.coordinates]}
+		return {'Dot': [self.scribble(self.coordinates)]}
 
 
-class Line(Drawable):
+class Line(Form):
 
 	def __init__(self, **kwargs):
 		super().__init__(**kwargs)
@@ -21,10 +36,10 @@ class Line(Drawable):
 
 	@property
 	def draft(self):
-		return {'Trace': [self.coordinates]}
+		return {'Trace': [self.scribble(self.coordinates)]}
 
 
-class Chain(Drawable):
+class Chain(Form):
 
 	def __init__(self, **kwargs):
 		super().__init__(**kwargs)
@@ -32,19 +47,36 @@ class Chain(Drawable):
 
 	@property
 	def draft(self):
-		return {'Trace': [self.coordinates[i:i+2] for i in range(self.grade-1)]}
+		return {'Trace':  [
+					self.scribble(self.coordinates[i:i+2])
+					for i in range(self.grade-1)
+				]}
 
 
 class Polygon(Chain):
 
 	@property
 	def draft(self):
-		draft = super(Polygon, self).draft
-		draft['Trace'].append([self.coordinates[-1], self.origin])
-		return draft
+		traces = [
+			self.coordinates[i:i + 2]
+			for i in
+			range(self.grade-1)
+		] + [[self.coordinates[-1], self.origin]]
+
+		return {'Trace': [
+			self.scribble(trace)
+			for trace in traces
+		]}
 
 
-class Curve(Drawable):
+class Face(Polygon):
+
+	@property
+	def draft(self):
+		return {'Face': [self.scribble(self.coordinates)]}
+
+
+class Curve(Form):
 
 	def __init__(self, **kwargs):
 		super().__init__(**kwargs)
@@ -69,7 +101,10 @@ class BezierCurve(Curve):
 
 			t += self.delta
 
-		return {'Trace': [bezier[i:i+2] for i in range(len(bezier)-1)]}
+		return {'Trace': [
+					self.scribble(bezier[i:i+2])
+					for i in range(len(bezier)-1)
+				]}
 
 
 class BSpineCurve(Curve):
@@ -77,10 +112,13 @@ class BSpineCurve(Curve):
 	@property
 	def draft(self):
 		bspine = calculate_bspine(self.coordinates)
-		return {'Trace': [bspine[i - 2:i] for i in range(2, len(bspine))]}
+		return {'Trace': [
+					self.scribble(bspine[i:i+2])
+					for i in range(len(bspine)-1)
+				]}
 
 
-class Surface(Drawable):
+class Surface(Form):
 	delta = 0.1
 
 	def __init__(self, **kwargs):
@@ -106,7 +144,7 @@ class BezierSurface(Surface):
 			for g in _g
 		]
 
-		trace = []
+		dashed = []
 		s = 0
 		while s < 1:
 
@@ -122,11 +160,14 @@ class BezierSurface(Surface):
 				bezier.append((x, y, z))
 				t += self.delta
 
-			trace.extend([bezier[i - 2:i] for i in range(2, len(bezier))])
+			dashed.extend([bezier[i:i+2] for i in range(len(bezier)-1)])
 
 			s += self.delta
 
-		return {'Trace': trace}
+		return {'Trace': [
+					self.scribble(trace)
+					for trace in dashed
+				]}
 
 
 class BSpineSurface(Surface):
@@ -152,9 +193,14 @@ class BSpineSurface(Surface):
 			for c in _c
 		]
 
-		return {'Trace': self.dash(_d()) + self.dash([transpose(d) for d in _d()])}
+		dashed = self.dashed(_d()) + self.dashed([transpose(d) for d in _d()])
 
-	def dash(self, _d):
+		return {'Trace': [
+					self.scribble(trace)
+					for trace in dashed
+				]}
+
+	def dashed(self, _d):
 		first_row = lambda _f: \
 			list(
 				tuple(
@@ -164,21 +210,17 @@ class BSpineSurface(Surface):
 				for j in range(4)
 			)
 
-		s = 0
-		trace = []
-		while s < 1:
+		k = 0
+		dashed = []
+		while k < 1:
 			bspine = calculate_bspine(first_row(_d))
-			trace.extend([bspine[i - 2:i] for i in range(2, len(bspine))])
+			dashed.extend([bspine[i:i+2] for i in range(len(bspine)-1)])
 
 			_d = [
 				matrix.forward_diff() @ d
 				for d in _d
 			]
 
-			s += self.delta
+			k += self.delta
 
-		return trace
-
-
-
-
+		return dashed

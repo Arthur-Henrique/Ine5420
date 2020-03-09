@@ -1,4 +1,4 @@
-execute:
+run:
 	python3 -m app
 
 quiet:

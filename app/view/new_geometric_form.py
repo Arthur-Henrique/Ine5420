@@ -1,9 +1,8 @@
+from app.view import UserInterface, Dialog
 from app import domain
-from app.view import UserInterface
-from app.view.dialog import Dialog
 
 
-class NewObjectView(UserInterface):
+class NewGeometricFormView(UserInterface):
 
     def __init__(self):
         super().__init__()
@@ -15,11 +14,18 @@ class NewObjectView(UserInterface):
         self.coordinate_list = self.builder.get_object("coordinate_list")
 
         self.builder.get_object("insert_button").connect("clicked", self.insert)
+        self.builder.get_object("load_button").connect("file-set", self.load)
         self.builder.get_object("create_button").connect("clicked", self.create)
 
     def insert(self, widget):
         self.coordinate_list.append(self.axis)
         [entry.set_text("") for entry in self.axis_entries]
+
+    def load(self, widget):
+        path = widget.get_filename()
+        domain.load(path)
+
+        self.quit()
 
     def create(self, widget):
         try:

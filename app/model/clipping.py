@@ -1,25 +1,37 @@
-from app.util import Frame
-from core import __log__
+from app.model import Frame
 
 
 class Clipping(Frame):
 
+	def __init__(self, origin, area):
+		x, y, z = origin
+		width, height = area
+
+		self.left = x
+		self.right = x + width
+		self.bottom = y
+		self.top = y + height
+
 	def __rmatmul__(self, draft):
-		draft.per_dot(lambda c: None if self.define_externality(*c) else c)
+		draft.per_dot(
+			lambda coordinates, **kwargs:
+				None
+				if self.define_externality(coordinates[0])
+				else coordinates
+		)
 		draft.per_trace(self.transform)
 		return draft
 
-	def transform(self, line):
-		externality = [self.define_externality(coordinate) for coordinate in line]
+	def transform(self, coordinates, **kwargs):
+		externality = [self.define_externality(coordinate) for coordinate in coordinates]
 
 		if sum(externality[0]) & sum(externality[1]) != 0:
 			return None
 		elif sum(externality[0]) | sum(externality[1]) != 0:
-			return self.clip(line.copy())
+			return self.clip(coordinates.copy())
 		else:
-			return line
+			return coordinates
 
-	# TODO 3D Clipping
 	def clip(self, line):
 		for i in [0, 1]:
 			(x0, y0, z0) = line[i]

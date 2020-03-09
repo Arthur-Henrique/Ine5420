@@ -1,0 +1,9 @@
+v 200 300 50
+w 120 0 0
+
+newmtl orange
+Kd 1 0.5 0
+
+o p1
+usemtl orange
+p 1

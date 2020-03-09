@@ -9,6 +9,4 @@ This project was developed as result of **Computer Graphics** class of Federal U
 After clone [this repository](git@github.com:Arthur-Henrique/Ine5420.git), to run *init.sh* script will set all required SO environment to compile, execute and test the project.
 
 ## Executing
-To execute this application just run `make execute` from project root directory
-
-
+To execute this application just run `make run` from project root directory

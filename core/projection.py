@@ -8,6 +8,7 @@ def __project__(*args, **kwargs):
 	for projection in PROJECTIONS:
 		projection.refresh(*args, **kwargs)
 
+
 class Projection():
 	def __init__(self):
 		PROJECTIONS.append(self)

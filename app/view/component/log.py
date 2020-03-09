@@ -27,6 +27,6 @@ class LogComponent(Projection):
         if "log" in args:
             for session, text in kwargs.items():
                 # if session in self.active_sessions:
-                    self.text_view.get_buffer().insert(self.cursor, f"{session}:\t{text}\n", -1)
+                    self.text_view.get_buffer().insert(self.cursor, f"{session}:\t{text}\n\n", -1)
 
         self.scroll()

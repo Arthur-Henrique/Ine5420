@@ -8,17 +8,17 @@ def matriz(m):
 def transposable(m_func):
 	def decorated(*args, **kwargs):
 		m = m_func(*args)
-
 		return m if not 'transpose' in kwargs.keys() else transpose(m)
 
 	return decorated
 
-# Transformation
 
 def normalize(coordinate):
 	(x, y, z) = coordinate
 	return matriz([x, y, z, 1])
 
+
+# Transformations
 
 def translate(x, y, z):
 	return matriz((
@@ -67,6 +67,8 @@ def scale(s):
 	))
 
 
+# Curve
+
 def geometry(coordinates):
 	return [
 		matriz((
@@ -80,7 +82,14 @@ def geometry(coordinates):
 	]
 
 
-# Curve
+def bezier():
+	return matriz((
+			[-1, 3, -3, 1],
+			[3, -6, 3, 0],
+			[-3, 3, 0, 0],
+			[1, 0, 0, 0]
+		))
+
 
 @transposable
 def bspine():
@@ -104,15 +113,6 @@ def init_diff(d):
 	))
 
 	return m
-
-
-def bezier():
-	return matriz((
-			[-1, 3, -3, 1],
-			[3, -6, 3, 0],
-			[-3, 3, 0, 0],
-			[1, 0, 0, 0]
-		))
 
 
 @transposable

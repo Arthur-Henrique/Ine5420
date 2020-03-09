@@ -1,13 +1,12 @@
+from app.model import Frame
 from app.util import normalize, translate, perspective
 
 
-class Perspective:
-	distance = 0
-	window = None
+class Perspective(Frame):
 
-	def __init__(self, distance, window):
+	def __init__(self, center, distance):
+		self.center = center
 		self.distance = distance
-		self.window = window
 
 	def __rmatmul__(self, draft):
 		draft.per_coordinate(self.transform)
@@ -25,5 +24,5 @@ class Perspective:
 
 	@property
 	def perspective_center(self):
-		(x, y, z) = self.window.center
+		(x, y, z) = self.center
 		return (x, y, z - self.distance)

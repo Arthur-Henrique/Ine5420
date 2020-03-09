@@ -1,8 +1,9 @@
 WORLD_CENTER = (0, 0, 0)
 
 from app.util.matrix import *
-from app.util.frame import *
+from app.util.rectangle import *
 import math
+
 
 class Direction:
 	UP = (0, -1, 0)
@@ -12,11 +13,11 @@ class Direction:
 	FORWARD = (0, 0, 1)
 	BACKWARD = (0, 0, -1)
 
-def calculate_bspine(reference, delta=0.01):
+def calculate_bspine(references, delta=0.01):
 	i = 4
 	coordinates = []
-	while i <= len(reference):
-		_g = matrix.geometry(reference[i-4:i])
+	while i <= len(references):
+		_g = matrix.geometry(references[i - 4:i])
 
 		_c = [
 			matrix.bspine() @ g

@@ -1,0 +1,11 @@
+v 10 150 10
+v 10 10 10
+v 150 10 10
+v 150 150 10
+
+newmtl green
+Kd 0 1 0
+
+o square
+usemtl green
+l 1 2 3 4 1

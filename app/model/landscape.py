@@ -1,37 +1,40 @@
-from app.model import Window, Vision, Perspective, Viewport, Clipping
+from app.model import Plane, Window, Vision, Perspective, Viewport, Clipping
 
 
-class Landscape:
-	window = None
-	vision = None
-	perspective = None
-	viewport = None
-	clipping = None
+class Landscape(Plane):
+	distance = 10
 
-	def __init__(self, origin=(0, 0, 0), area=(750, 750), distance=10):
-		x, y, z, width, height = (*origin, *area)
+	@property
+	def window(self):
+		return Window(self.center, self.angle, self.scale)
 
-		self.window = Window(origin, area)
-		self.vision = Vision(self.window)
-		self.perspective = Perspective(distance, self.window)
-		self.viewport = Viewport((x+20, y+20, z), (width-40, height-40), self.window)
-		self.clipping = Clipping((x+20, y+20, z), (width-40, height-40))
+	@property
+	def vision(self):
+		return Vision(self.z)
+
+	@property
+	def perspective(self):
+		return Perspective(self.center, self.distance)
+
+	@property
+	def viewport(self):
+		return Viewport(
+			self,
+			tuple(20 for _ in self.origin),
+			tuple(measure-40 for measure in self.area)
+		)
+
+	@property
+	def clipping(self):
+		return Clipping(
+			tuple(20 for _ in self.origin),
+			tuple(measure -40 for measure in self.area)
+		)
 
 	def __rmatmul__(self, draft):
-		draft = draft \
+		return draft \
 				@ self.window \
 				@ self.vision \
 				@ self.perspective \
 				@ self.viewport \
 				@ self.clipping
-
-		draft + self.clipping.draft
-
-		return draft
-
-	def center_at(self, coordinate):
-		direction = tuple(d1-d0 for d0, d1 in zip(self.window.center, coordinate))
-		self.window.move(1, direction)
-
-	def resize(self, area):
-		pass

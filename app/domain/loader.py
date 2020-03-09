@@ -1,14 +1,15 @@
 from app import domain
 from app import model
 
+
 class Loader:
     coordinates = []
     material = {}
 
-    def load(self, path, archive):
+    def load(self, path):
 
         def read():
-            with open(path + '/' + archive, "r") as file:
+            with open(path) as file:
                 lines = file.read().splitlines()
 
                 for line in lines:
@@ -18,13 +19,12 @@ class Loader:
                 raise StopIteration
 
         name = 'None'
-        color = (0, 0, 0)
-        cstype = 'Bezier'
+        color = (.5, .5, .5)
+        cstype = 'None'
         mtl = None
 
         coordinate_arg = lambda: tuple(float(arg) for arg in args)
         unique_arg = lambda: args[0]
-
 
         for cmd, *args in read():
             # Argument
@@ -55,14 +55,14 @@ class Loader:
 
             # Window
             if cmd == 'w':
-                model.LANDSCAPE.center_at(coordinate_arg())
+                model.LANDSCAPE.recenter(coordinate_arg())
                 continue
 
             # Object
             type = {
                 'p': 'Point',
                 'l': 'Line' if len(args) == 2 else 'Chain',
-                'f': 'Polygon',
+                'f': 'Face',
                 # 'curv2': cstype + '_curve',
                 'curv': cstype + '_curve',
                 'surf': cstype + '_surface',
@@ -75,7 +75,7 @@ class Loader:
 
             domain.create(**obj_args)
 
-            name, color, cstype, = 'None', (0, 0, 0), 'Bezier'
+            name, color, cstype, = 'None', (0, 0, 0), 'None'
 
     def get_coordinate(self, i):
-        return self.coordinates[int(i)]
+        return self.coordinates[int(i)-1]

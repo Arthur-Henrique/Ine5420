@@ -1,10 +1,10 @@
-from core import __log__
 
 
 class Draft:
 	sketch = {
 		'Dot': [],
-		'Trace': []
+		'Trace': [],
+		'Face': []
 	}
 
 	def __getitem__(self, key):
@@ -25,13 +25,17 @@ class Draft:
 	def per_coordinate(self, transformation):
 		for key in self.keys():
 			for i, scribble in enumerate(self[key]):
-				transformed = [transformation(coordinate) for coordinate in scribble]
+				coordinates, color = scribble.values()
+				transformed = [transformation(coordinate) for coordinate in coordinates]
 
-				if transformed != scribble:
+				if transformed != coordinates:
 					del self[key][i]
 
 					if transformed:
-						self[key].insert(i, transformed)
+						self[key].insert(i, dict(
+							coordinates=transformed,
+							color=color
+						))
 
 	def per_dot(self, transformation):
 		self.transform('Dot', transformation)
@@ -39,19 +43,25 @@ class Draft:
 	def per_trace(self, transformation):
 		self.transform('Trace', transformation)
 
+	def per_face(self, transformation):
+		self.transform('Face', transformation)
+
 	def transform(self, key, transformation):
 		sketch = self[key]
 
 		i = 0
 		while i < len(sketch):
-			actual = sketch[i]
-			transformed = transformation(actual)
+			coordinates, color = sketch[i].values()
+			transformed = transformation(coordinates=coordinates, color=color)
 
-			if transformed != actual:
+			if transformed != coordinates:
 				del sketch[i]
 
 				if transformed:
-					sketch.insert(i, transformed)
+					sketch.insert(i, dict(
+						coordinates=transformed,
+						color=color
+					))
 				else:
 					continue
 			i += 1

@@ -1,21 +1,24 @@
-from app.util import Frame
+from app.model import Frame
 
 
 class Viewport(Frame):
-	window = None
 
-	def __init__(self, origin, area, window):
-		super().__init__(origin, area)
-		self.window = window
+	def __init__(self, landscape, origin, area):
+		self.landscape = landscape
+		self.origin = origin
+		self.area = area
 
 	def __rmatmul__(self, draft):
 		draft.per_coordinate(self.transform)
 		return draft
 
-	def transform(self, coordinate):
-		(x, y, z) = coordinate
+	def transform(self, coordinate, **kwargs):
+		x, y, z = coordinate
 
-		x = self.x + (x - self.window.x) * self.width / self.window.width
-		y = self.y + (y - self.window.y) * self.height / self.window.height
+		vx, vy, vz = self.origin
+		width, height = self.area
+
+		x = vx + (x - self.landscape.x) * width / self.landscape.width
+		y = vy + (y - self.landscape.y) * height / self.landscape.height
 
 		return (x, y, z)

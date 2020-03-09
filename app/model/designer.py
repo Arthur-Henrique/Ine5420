@@ -14,7 +14,6 @@ class Designer:
 			[dx, dy, *_] = normalize(direction) @ rotate(reference)
 
 		transform(object, translate(measure * dx, measure * dy, 0))
-		# __project__('log', object_movement=(id, measure, reference))
 
 	def turn(self, id, measure, direction, reference, axis):
 		object = domain.get(id)
@@ -53,4 +52,4 @@ def transform(object, transformation):
 			for coordinate in object.coordinates
 		]
 	]
-	__project__("object_transformation")
+	__project__("transformation")

@@ -1,13 +1,10 @@
 import unittest
 
-from test.draft import DraftTestCase
-from test.model import *
+from test.loader import LoaderTestCase
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
     suite.addTest([
-        DraftTestCase()
-        # ClippingTestCase(),
-        # RectangleTestCase()
+        LoaderTestCase()
     ])
     unittest.TextTestRunner().run(suite)

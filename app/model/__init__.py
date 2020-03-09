@@ -1,4 +1,6 @@
 from app.model.draft import Draft
+from app.model.plane import Plane
+from app.model.frame import Frame
 from app.model.window import Window
 from app.model.vision import Vision
 from app.model.perspective import Perspective
